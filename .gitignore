@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+
+# Node
+node_modules/
+dist/
+*.tsbuildinfo
+
+# Local data & secrets
+.data/
+*.db
+*.db-wal
+*.db-shm
+secrets.key
+.env
+.env.*
+!.env.example
+client_secret*.json
+token*.json
+
+# OS / editors
+.DS_Store
+.idea/
+.vscode/
