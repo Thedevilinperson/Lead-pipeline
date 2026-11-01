@@ -1,29 +1,37 @@
-# CLAUDE.md — werkafspraken voor Lead Pipeline
+# CLAUDE.md — werkafspraken voor het platform
 
 ## Project
-Zelf-gehoste CRM (leads, pipelines, Gmail-threadopvolging, optionele AI) als
-Home Assistant add-on. Databank: SQLite in `/data` op de HA-server.
+Modulair bedrijfsplatform (start: CRM met leads, pipelines en Gmail-opvolging;
+later klanten, producten, offertes, …). Modulaire monoliet: FastAPI-backend +
+worker + React-frontend + MCP-server. Centrale databank: PostgreSQL op de
+Home Assistant-server; het platform is GEEN Home Assistant add-on.
 Ontwerp: `docs/ONTWERP.md` (leidend). Bouwplan: `CLAUDE_CODE_PROMPT.md`.
 Beslissingen buiten het ontwerp: `docs/BESLISSINGEN.md`.
 
 ## Taal
 - UI-teksten: Nederlands (België) via i18n, Engels als tweede taal.
 - Code, identifiers, commits, code-commentaar: Engels.
-- Documentatie voor de gebruiker (README, DOCS.md, docs/): Nederlands.
+- Gebruikersdocumentatie (README, docs/): Nederlands.
 
 ## Commando's (na Fase 0)
-- `make dev` — volledige app lokaal (DEV_MODE, fake Gmail/HA/AI, seeddata)
-- `make test` — backend (pytest) + frontend (vitest)
+- `make dev` — volledig platform lokaal (postgres, test-mailserver, fakes, seeddata)
+- `make test` — backend (pytest, echte postgres) + frontend (vitest)
 - `make lint` — ruff, mypy, eslint, prettier --check
-- `make build` — add-on Docker-image (amd64)
-- Migratie maken: `cd backend && uv run alembic revision --autogenerate -m "..."`
+- `make migrate` — Alembic-migraties voor alle actieve modules
+- `make build` — Docker-images
+- Nieuwe module: kopieer `backend/app/modules/_template/` (zie `docs/MODULE_MAKEN.md`)
 
 ## Regels
+- Modulegrenzen: elke module eigen PostgreSQL-schema, eigen migraties, eigen
+  router. Modules spreken elkaar aan via services/events, nooit door elkaars
+  tabellen rechtstreeks te wijzigen.
+- Alle schrijfacties via API/services (validatie, audit-log, events).
+  Externe tools lezen enkel via schema `reporting`.
 - Nooit automatisch mails verzenden; AI wijzigt nooit zelf data.
-- Nooit de volledige mailbox synchroniseren; enkel bekende contacten of label `Pipeline`.
-- Geen secrets, tokens of mailinhoud in logs, tests, fixtures of commits.
-- Tests roepen nooit echte externe API's aan (gebruik de fakes).
+- Nooit de volledige mailbox synchroniseren; enkel gekende contactadressen of label `Pipeline`.
+- Geen secrets, wachtwoorden of mailinhoud in logs, tests, fixtures of commits.
+- Tests gebruiken een echte PostgreSQL en fakes voor externe diensten.
 - Schemawijzigingen altijd via Alembic.
-- Frontend moet werken onder een dynamisch Ingress-basispad (geen absolute `/`-paden).
-- Kleine commits, Conventional Commits (`feat:`, `fix:`, `docs:` …).
+- v1 eenvoudig houden: liever minder dat goed werkt.
+- Kleine commits, Conventional Commits (`feat(crm): …`, `fix(mail): …`, `docs: …`).
 - Na elke fase: lint + typecheck + tests groen, docs bijgewerkt, korte samenvatting.

@@ -1,21 +1,29 @@
-# Lead Pipeline
+# Lead Pipeline — modulair bedrijfsplatform
 
-Zelf-gehoste CRM voor het opvolgen van leads, partners en pipelines — draait als
-**Home Assistant add-on**, bewaart zijn databank op je Home Assistant-server en
-koppelt met **Gmail** om mailthreads per lead op status op te volgen
-(wacht op antwoord / antwoord ontvangen / opvolgen / afgesloten).
-Optionele **AI** (Claude of een lokaal model via Ollama) vat threads samen,
-classificeert antwoorden, stelt opvolgmails voor en prioriteert je dag.
+Een zelf-gehost, modulair platform voor het bedrijf. Het start als **eenvoudige
+CRM** (leads, pipelines en Gmail-threads opvolgen bij partners en andere
+partijen) en groeit uit tot een geïntegreerd pakket met **klantbeheer,
+productbeheer, offertes, …**
 
-> **Status:** ontwerpfase. De app wordt gebouwd met Claude Code op basis van
-> de bouwprompt in deze repo.
+- **Centrale databank** (PostgreSQL) op de Home Assistant-server.
+- **Meerdere kanalen** om data te raadplegen en te bewerken: web-app, REST API,
+  MCP-server (Claude), Home Assistant, en alleen-lezen SQL voor rapportering.
+- **Gmail-koppeling** via IMAP/SMTP (werkt met een gewoon Gmail-account):
+  threads per lead met status *wacht op antwoord / antwoord ontvangen /
+  opvolgen / afgesloten*.
+- **Optionele AI**: samenvatten, antwoorden classificeren, opvolgmails
+  voorstellen, prioriteren — met Claude of lokaal via Ollama.
 
-## Inhoud van deze repo
+> **Status:** ontwerpfase. Het platform wordt gebouwd met Claude Code op basis
+> van de bouwprompt in deze repo.
+
+## Inhoud
 
 | Bestand | Wat |
 |---|---|
-| [`docs/ONTWERP.md`](docs/ONTWERP.md) | Functioneel & technisch ontwerp: architectuur, datamodel, Gmail-sync, AI, HA-integratie, beveiliging, fasering |
-| [`CLAUDE_CODE_PROMPT.md`](CLAUDE_CODE_PROMPT.md) | De prompt om de app fase per fase te laten bouwen door Claude Code |
+| [`docs/ONTWERP.md`](docs/ONTWERP.md) | Architectuur, modulesysteem, datamodel, mail, AI, kanalen, beveiliging, fasering |
+| [`docs/BESLISSINGEN.md`](docs/BESLISSINGEN.md) | Belangrijke architectuurkeuzes en waarom |
+| [`CLAUDE_CODE_PROMPT.md`](CLAUDE_CODE_PROMPT.md) | De prompt om het platform fase per fase te laten bouwen |
 | [`CLAUDE.md`](CLAUDE.md) | Vaste werkafspraken die Claude Code automatisch leest |
 
 ## Bouwen met Claude Code
@@ -26,23 +34,14 @@ cd Lead-pipeline
 claude
 ```
 
-Plak daarna de prompt uit `CLAUDE_CODE_PROMPT.md`. Claude Code stelt eerst een
-plan voor Fase 0 voor; na je akkoord bouwt het de fasen één voor één
-(skelet → CRM-kern → Gmail → Home Assistant → AI → afwerking) en stopt na elke
-fase zodat je kunt testen.
+Plak de prompt uit `CLAUDE_CODE_PROMPT.md`. Claude Code stelt eerst een plan
+voor Fase 0 voor en bouwt daarna fase per fase:
+fundament → relaties + CRM → mail → kanalen (API, MCP, Home Assistant) → AI → v1.0.
+Daarna volgen modules zoals klanten en producten.
 
-## Installeren in Home Assistant (zodra Fase 0 klaar is)
+## Voor je begint
 
-1. **Instellingen → Add-ons → Add-on store → ⋮ → Repositories**
-2. Voeg `https://github.com/Thedevilinperson/Lead-pipeline` toe.
-3. Installeer **Lead Pipeline**, vul de opties in en start.
-4. Open het paneel **Lead Pipeline** in de zijbalk.
-
-Vereist Home Assistant OS of Supervised.
-
-## Voor je begint — beslis even
-
-- Google Workspace-mailbox of gewoon Gmail-account? (bepaalt hoe lang de
-  Gmail-koppeling geldig blijft, zie ontwerp §5.1)
-- Mag mailinhoud naar een externe AI-provider, of liever lokaal (Ollama)?
-- Welke pipelinestappen gebruikt het bedrijf?
+- Hoe draait Home Assistant op de NUC (HA OS, Docker, Proxmox)? Dat bepaalt
+  hoe PostgreSQL geïnstalleerd wordt.
+- Zet tweestapsverificatie aan op het Gmail-account (nodig voor het app-wachtwoord).
+- Mag mailinhoud naar een externe AI-provider, of liever lokaal?
